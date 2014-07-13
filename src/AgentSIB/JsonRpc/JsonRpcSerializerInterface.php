@@ -4,7 +4,7 @@
 namespace AgentSIB\JsonRpc;
 
 
-interface JsonRpcTransportInterface
+interface JsonRpcSerializerInterface
 {
 
     /**

@@ -13,12 +13,12 @@ class JsonRpcServer
 
     private $services = array();
 
-    /** @var  JsonRpcTransportInterface */
-    private $transport;
+    /** @var  JsonRpcSerializerInterface */
+    private $serializer;
 
-    public function __construct (JsonRpcTransportInterface $transport)
+    public function __construct (JsonRpcSerializerInterface $serializer)
     {
-        $this->transport = $transport;
+        $this->serializer = $serializer;
     }
 
     public function addService($namespace, $class)
@@ -45,7 +45,7 @@ class JsonRpcServer
         $output = null;
         try {
 
-            $data = $this->transport->parseRequest($request);
+            $data = $this->serializer->parseRequest($request);
 
             if (is_null($data) || empty($data)) {
                 throw new JsonRpcException(JsonRpcException::ERROR_PARSE_ERROR);
@@ -68,7 +68,7 @@ class JsonRpcServer
             $output = $this->makeErrorResponse($e);
         }
 
-        return $this->transport->serializeResponse($output);
+        return $this->serializer->serializeResponse($output);
 
     }
 

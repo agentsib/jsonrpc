@@ -624,7 +624,7 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
     protected function setUp ()
     {
         if (empty($this->server)) {
-            $this->server = new JsonRpcServer(new BaseJsonRpcTransport());
+            $this->server = new JsonRpcServer(new BaseJsonRpcSerializer());
             $this->server->addService(
                 JsonRpcServer::DEFAULT_NAMESPACE,
                 '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcService'

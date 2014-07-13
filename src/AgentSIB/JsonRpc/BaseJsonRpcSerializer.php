@@ -4,7 +4,7 @@
 namespace AgentSIB\JsonRpc;
 
 
-class BaseJsonRpcTransport implements JsonRpcTransportInterface
+class BaseJsonRpcSerializer implements JsonRpcSerializerInterface
 {
 
     /**
