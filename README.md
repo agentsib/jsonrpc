@@ -3,6 +3,8 @@ JSON-RPC Library
 
 **WARNING!** Library is still in development. The structure of the project may change at any time.
 
+[Documentation](docs/index.md)
+
 Roadmap
 -------
 
