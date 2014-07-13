@@ -13,7 +13,7 @@ For example:
     $client = new JsonRpcClient(new CurlJsonRpcTransport('http://example.org/jsonrpc'));
     
     try {
-        $response = $client->makeSingleRequest(new SingleJsonRpcRequest('user.testMethod', array('param1' => 'test')));
+        $response = $client->makeSingleRequest('user.testMethod', array('param1' => 'test'));
         
         if ($response->isCorrect()) {
             if ($response->isSuccess()) {
@@ -30,7 +30,7 @@ For example:
 You can use single requests:
 
 ```php
-    $response = $client->makeSingleRequest(new SingleJsonRpcRequest('user.testMethod', array('param1' => 'test')));
+    $response = $client->makeSingleRequest('user.testMethod', array('param1' => 'test'));
 ```
 
 Or notifications:
