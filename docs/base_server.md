@@ -8,7 +8,7 @@ Simple code:
 // index.php
 
 use \AgentSIB\JsonRpc\JsonRpcServer;
-use \AgentSIB\JsonRpc\BaseJsonRpcSerializer;
+use \AgentSIB\JsonRpc\Serializers\BaseJsonRpcSerializer;
 
 $server = new JsonRpcServer(new BaseJsonRpcSerializer());
 $server->addService(JsonRpcServer::DEFAULT_NAMESPACE, '\JsonRpc\MyService');
