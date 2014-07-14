@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc\Response;
+namespace AgentSIB\JsonRpc\Responses;
 
 
 abstract class JsonRpcResponse

@@ -1,12 +1,16 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc;
+namespace AgentSIB\JsonRpc\Tests;
 
 
+use AgentSIB\JsonRpc\JsonRpcClient;
+use AgentSIB\JsonRpc\JsonRpcException;
+use AgentSIB\JsonRpc\JsonRpcServer;
 use AgentSIB\JsonRpc\Requests\BatchJsonRpcRequest;
 use AgentSIB\JsonRpc\Requests\NotificationJsonRpcRequest;
 use AgentSIB\JsonRpc\Requests\SingleJsonRpcRequest;
+use AgentSIB\JsonRpc\Serializers\BaseJsonRpcSerializer;
 use AgentSIB\JsonRpc\Transports\InternalJsonRpcTransport;
 
 class JsonRpcClientTest extends \PHPUnit_Framework_TestCase
@@ -20,7 +24,6 @@ class JsonRpcClientTest extends \PHPUnit_Framework_TestCase
      */
     public function testSingleRequest($method, $params, $is_correct, $result, $error_code, $error_data)
     {
-
         $response = $this->client->makeSingleRequest($method, $params);
 
         if ($is_correct) {
@@ -50,12 +53,12 @@ class JsonRpcClientTest extends \PHPUnit_Framework_TestCase
 
     public function testSingleRequestProvider()
     {
-        $error = '';
-        try {
+        $error = 'Division by zero';
+        /*try {
             2/0;
         } catch (\Exception $e) {
             $error = $e->getMessage();
-        }
+        }*/
         return array(
             array('noParamsMethod', null, true, 'answer', null, null),
             array('noParamsMethod', array(1), true, 'answer', null, null),
@@ -199,7 +202,7 @@ class JsonRpcClientTest extends \PHPUnit_Framework_TestCase
     {
         if (!$this->client) {
             $server = new JsonRpcServer(new BaseJsonRpcSerializer());
-            $server->addService(JsonRpcServer::DEFAULT_NAMESPACE, '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcService');
+            $server->addService(JsonRpcServer::DEFAULT_NAMESPACE, '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService');
             $this->client = new JsonRpcClient(new InternalJsonRpcTransport($server));
         }
     }

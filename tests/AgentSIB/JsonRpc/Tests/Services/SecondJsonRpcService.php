@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc\Services;
+namespace AgentSIB\JsonRpc\Tests\Services;
 
 
 use AgentSIB\JsonRpc\JsonRpcServiceInterface;

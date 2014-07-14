@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc\Response;
+namespace AgentSIB\JsonRpc\Responses;
 
 
 class BatchJsonRpcResponse extends JsonRpcResponse

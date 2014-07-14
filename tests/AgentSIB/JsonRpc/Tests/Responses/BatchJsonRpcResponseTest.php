@@ -1,10 +1,11 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc\Response;
+namespace AgentSIB\JsonRpc\Tests\Responses;
 
 
 use AgentSIB\JsonRpc\JsonRpcClient;
+use AgentSIB\JsonRpc\Responses\BatchJsonRpcResponse;
 
 class BatchJsonRpcResponseTest extends \PHPUnit_Framework_TestCase
 {

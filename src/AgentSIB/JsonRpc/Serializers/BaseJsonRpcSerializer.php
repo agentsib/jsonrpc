@@ -1,8 +1,10 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc;
+namespace AgentSIB\JsonRpc\Serializers;
 
+
+use AgentSIB\JsonRpc\JsonRpcException;
 
 class BaseJsonRpcSerializer implements JsonRpcSerializerInterface
 {

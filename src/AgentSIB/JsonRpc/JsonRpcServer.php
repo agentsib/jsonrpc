@@ -4,6 +4,8 @@
 namespace AgentSIB\JsonRpc;
 
 
+use AgentSIB\JsonRpc\Serializers\JsonRpcSerializerInterface;
+
 class JsonRpcServer
 {
 
@@ -92,16 +94,12 @@ class JsonRpcServer
                 $method = trim(strtolower($call->method));
 
                 if (empty($method)) {
-                    // @codeCoverageIgnoreStart
                     throw new JsonRpcException(JsonRpcException::ERROR_INVALID_REQUEST);
-                    // @codeCoverageIgnoreEnd
                 }
             }
 
             if (!isset($this->services[$namespace])) {
-                // @codeCoverageIgnoreStart
                 throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
-                // @codeCoverageIgnoreEnd
             }
 
             $refClass = new \ReflectionClass($this->services[$namespace]);

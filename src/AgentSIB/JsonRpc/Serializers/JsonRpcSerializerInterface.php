@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc;
+namespace AgentSIB\JsonRpc\Serializers;
 
 
 interface JsonRpcSerializerInterface

@@ -8,8 +8,8 @@ use AgentSIB\JsonRpc\Requests\BatchJsonRpcRequest;
 use AgentSIB\JsonRpc\Requests\JsonRpcRequest;
 use AgentSIB\JsonRpc\Requests\NotificationJsonRpcRequest;
 use AgentSIB\JsonRpc\Requests\SingleJsonRpcRequest;
-use AgentSIB\JsonRpc\Response\BatchJsonRpcResponse;
-use AgentSIB\JsonRpc\Response\SingleJsonRpcResponse;
+use AgentSIB\JsonRpc\Responses\BatchJsonRpcResponse;
+use AgentSIB\JsonRpc\Responses\SingleJsonRpcResponse;
 use AgentSIB\JsonRpc\Transports\JsonRpcTransportInterface;
 
 class JsonRpcClient

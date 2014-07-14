@@ -1,9 +1,11 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc;
+namespace AgentSIB\JsonRpc\Tests;
 
-use Symfony\Component\Config\Definition\Exception\Exception;
+use AgentSIB\JsonRpc\JsonRpcException;
+use AgentSIB\JsonRpc\Serializers\BaseJsonRpcSerializer;
+use AgentSIB\JsonRpc\JsonRpcServer;
 
 class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
 {
@@ -29,12 +31,12 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
     public function testAddServiceProvider()
     {
         return array(
-            array('newns', '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcService', false),
-            array('second', '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcService', true),
-            array('SeCond', '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcService', true),
-            array('Wrong NS', '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcService', true),
-            array('Wrong1', '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcService', true),
-            array('newns', '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcServiceasdf', true),
+            array('newns', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', false),
+            array('second', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', true),
+            array('SeCond', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', true),
+            array('Wrong NS', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', true),
+            array('Wrong1', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', true),
+            array('newns', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcServiceasdf', true),
         );
     }
 
@@ -78,6 +80,7 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
     public function testInvalidRequestProvider()
     {
         return array(
+            array('{"jsonrpc": "2.0", "method": "", "params": null, "id":"1"}' , 1),
             array('{"jsonrpc": "2.0", "method": 1, "id":"1"}' , 1),
             array('{"jsonrpc": "2.0", "params": "bar", "id":"2"}', 2),
             array('{"method": 1, "params": "bar", "id":"3"}', 3),
@@ -156,6 +159,14 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     'method'    =>  'second.notExistsMethod',
+                    'params'    =>  null,
+                    'id'        =>  1
+                ),
+                true
+            ),
+            array(
+                array(
+                    'method'    =>  'namespace.notExistsMethod',
                     'params'    =>  null,
                     'id'        =>  1
                 ),
@@ -627,11 +638,11 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
             $this->server = new JsonRpcServer(new BaseJsonRpcSerializer());
             $this->server->addService(
                 JsonRpcServer::DEFAULT_NAMESPACE,
-                '\\AgentSIB\\JsonRpc\\Services\\FirstJsonRpcService'
+                '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService'
             );
             $this->server->addService(
                 'second',
-                '\\AgentSIB\\JsonRpc\\Services\\SecondJsonRpcService'
+                '\\AgentSIB\\JsonRpc\\Tests\\Services\\SecondJsonRpcService'
             );
         }
     }

@@ -1,8 +1,12 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc\Requests;
+namespace AgentSIB\JsonRpc\Tests\Requests;
 
+
+use AgentSIB\JsonRpc\Requests\BatchJsonRpcRequest;
+use AgentSIB\JsonRpc\Requests\NotificationJsonRpcRequest;
+use AgentSIB\JsonRpc\Requests\SingleJsonRpcRequest;
 
 class BatchJsonRpcRequestTest extends \PHPUnit_Framework_TestCase
 {

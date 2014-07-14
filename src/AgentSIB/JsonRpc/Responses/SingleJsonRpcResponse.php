@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AgentSIB\JsonRpc\Response;
+namespace AgentSIB\JsonRpc\Responses;
 
 
 use AgentSIB\JsonRpc\JsonRpcClient;
