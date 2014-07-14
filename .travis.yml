@@ -10,6 +10,6 @@ install:
 script:
     - ./build/qa.sh lint
     - ./build/qa.sh cpd
-    - ./build/qa.sh cs
+#    - ./build/qa.sh cs
     - ./build/qa.sh unit
     - ./build/qa.sh md || true
