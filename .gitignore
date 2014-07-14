@@ -1,6 +1,8 @@
 .idea/
 vendor/
 build/coverage/
+build/clover.xml
+build/clover.json
 *.iml
 composer.lock
 composer.phar

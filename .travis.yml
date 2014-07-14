@@ -13,3 +13,6 @@ script:
 #    - ./build/qa.sh cs
     - ./build/qa.sh unit
     - ./build/qa.sh md || true
+after_script:
+  - php vendor/bin/coveralls
+
