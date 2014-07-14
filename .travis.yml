@@ -1,0 +1,15 @@
+language: php
+
+php:
+  - "5.4"
+  - "5.3"
+
+install:
+    - composer install --prefer-source
+
+script:
+    - ./build/qa.sh lint
+    - ./build/qa.sh cpd
+    - ./build/qa.sh cs
+    - ./build/qa.sh unit
+    - ./build/qa.sh md || true
