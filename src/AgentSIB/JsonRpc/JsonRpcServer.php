@@ -98,66 +98,38 @@ class JsonRpcServer
                 }
             }
 
-            if (!isset($this->services[$namespace])) {
+            if (!array_key_exists($namespace, $this->services)) {
                 throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
             }
 
-            $refClass = new \ReflectionClass($this->services[$namespace]);
-
-            if (!$refClass->hasMethod($method)) {
-                throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
-            }
-
-            $refMethod = $refClass->getMethod($method);
-
-            if (!$refMethod->isPublic() || $refMethod->isStatic()) {
-                throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
-            }
+            $reflection = new JsonRpcReflection($this->services[$namespace], $method);
 
             switch (gettype($call->params)) {
                 case 'array': // Old style
-                    if ($refMethod->getNumberOfRequiredParameters() > count($call->params)) {
+                    if ($reflection->getNumberOfRequiredParameters() > count($call->params)) {
                         throw new JsonRpcException(JsonRpcException::ERROR_INVALID_PARAMS);
                     }
                     return $this->makeResultResponse(
-                        $refMethod->invokeArgs(
-                            $refClass->newInstance(),
-                            $call->params
-                        ),
+                        $reflection->invoke($call->params),
                         isset($call->id)?$call->id:null,
                         $isNotification
                     );
                     break;
                 case 'object': // Standard style
-                    $params = array();
-                    foreach ($refMethod->getParameters() as $refParam) {
-                        if (property_exists($call->params, $refParam->getName())) {
-                            $params[$refParam->getName()] = $call->params->{$refParam->getName()};
-                        } else {
-                            if ($refParam->isDefaultValueAvailable()) {
-                                $params[$refParam->getName()] = $refParam->getDefaultValue();
-                            } else {
-                                throw new JsonRpcException(JsonRpcException::ERROR_INVALID_PARAMS);
-                            }
-                        }
-                    }
+                    $params = $reflection->prepareParameters($call->params);
+
                     return $this->makeResultResponse(
-                        $refMethod->invokeArgs(
-                            $refClass->newInstance(),
-                            $params
-                        ),
+                        $reflection->invoke($params),
                         isset($call->id)?$call->id:null,
                         $isNotification
                     );
                     break;
                 default: // For example null
-                    if ($refMethod->getNumberOfRequiredParameters()) {
+                    if ($reflection->getNumberOfRequiredParameters()) {
                         throw new JsonRpcException(JsonRpcException::ERROR_INVALID_PARAMS);
                     }
                     return $this->makeResultResponse(
-                        $refMethod->invoke(
-                            $refClass->newInstance()
-                        ),
+                        $reflection->invoke(),
                         isset($call->id)?$call->id:null,
                         $isNotification
                     );
