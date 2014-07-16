@@ -4,6 +4,8 @@
 namespace AgentSIB\JsonRpc;
 
 
+use AgentSIB\JsonRpc\Reflection\BaseJsonRpcReflection;
+use AgentSIB\JsonRpc\Reflection\JsonRpcReflectionInterface;
 use AgentSIB\JsonRpc\Serializers\JsonRpcSerializerInterface;
 
 class JsonRpcServer
@@ -15,12 +17,16 @@ class JsonRpcServer
 
     private $services = array();
 
+    private $reflection = null;
+
     /** @var  JsonRpcSerializerInterface */
     private $serializer;
 
-    public function __construct (JsonRpcSerializerInterface $serializer)
+    public function __construct (JsonRpcSerializerInterface $serializer, JsonRpcReflectionInterface $reflection = null)
     {
         $this->serializer = $serializer;
+
+        $this->reflection = $reflection == null ? new BaseJsonRpcReflection() : $reflection;
     }
 
     public function addService($namespace, $class)
@@ -102,39 +108,13 @@ class JsonRpcServer
                 throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
             }
 
-            $reflection = new JsonRpcReflection($this->services[$namespace], $method);
+            $this->reflection->init($this->services[$namespace], $method);
 
-            switch (gettype($call->params)) {
-                case 'array': // Old style
-                    if ($reflection->getNumberOfRequiredParameters() > count($call->params)) {
-                        throw new JsonRpcException(JsonRpcException::ERROR_INVALID_PARAMS);
-                    }
-                    return $this->makeResultResponse(
-                        $reflection->invoke($call->params),
-                        isset($call->id)?$call->id:null,
-                        $isNotification
-                    );
-                    break;
-                case 'object': // Standard style
-                    $params = $reflection->prepareParameters($call->params);
-
-                    return $this->makeResultResponse(
-                        $reflection->invoke($params),
-                        isset($call->id)?$call->id:null,
-                        $isNotification
-                    );
-                    break;
-                default: // For example null
-                    if ($reflection->getNumberOfRequiredParameters()) {
-                        throw new JsonRpcException(JsonRpcException::ERROR_INVALID_PARAMS);
-                    }
-                    return $this->makeResultResponse(
-                        $reflection->invoke(),
-                        isset($call->id)?$call->id:null,
-                        $isNotification
-                    );
-                    break;
-            }
+            return $this->makeResultResponse(
+                $this->reflection->invokeMethod($call->params),
+                isset($call->id)?$call->id:null,
+                $isNotification
+            );
 
         } catch (\Exception $e) {
             return $this->makeErrorResponse(
