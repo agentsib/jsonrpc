@@ -16,8 +16,6 @@ Roadmap
 -------
 
 ###Server###
-* Versions support for api
-* Cache reflection operations
 * Autocreate documentation (may be SMD?)
 * PHPDoc 
 
@@ -33,6 +31,8 @@ Client and server fully satisfy the specifications [JSON-RPC 2.0](http://www.jso
 * Batch requests
 * Notifications
 * Customize serialization and deserialization
+* Customize reflection operations
+* Versions support for api
 
 ###Client###
 
