@@ -29,15 +29,15 @@ class JsonRpcServer
         $this->reflection = $reflection == null ? new BaseJsonRpcReflection() : $reflection;
     }
 
-    public function addService($namespace, $class)
+    public function addService($namespace, $class, $version = 1)
     {
         $namespaceNormalize = strtolower($namespace);
 
         if (!preg_match('/^[a-z]+$/', $namespaceNormalize) && $namespaceNormalize != self::DEFAULT_NAMESPACE) {
-            throw new \Exception('Uncorrect namespace name');
+            throw new \Exception('Incorrect namespace name');
         }
 
-        if (isset($this->services[$namespaceNormalize])) {
+        if (isset($this->services[$namespaceNormalize]) && isset($this->services[$namespaceNormalize][$version])) {
             throw new \Exception('Namespace already exists');
         }
 
@@ -45,13 +45,21 @@ class JsonRpcServer
             throw new \Exception('JsonRPC class not exists');
         }
 
-        $this->services[$namespace] = $class;
+        if (!isset($this->services[$namespaceNormalize])) {
+            $this->services[$namespaceNormalize] = array();
+        }
+
+        $this->services[$namespaceNormalize][$version] = $class;
     }
 
-    public function process($request)
+    public function process($request, $version = 1)
     {
         $output = null;
         try {
+
+            if (!is_integer($version) || $version < 1) {
+                throw new \LogicException('Version must be integer');
+            }
 
             $data = $this->serializer->parseRequest($request);
 
@@ -63,14 +71,14 @@ class JsonRpcServer
             if (($batch = $this->interpretBatch($data)) !== false) {
                 $result = array();
                 foreach ($batch as $call) {
-                    $r = $this->processCall($call);
+                    $r = $this->processCall($call, $version);
                     if (!is_null($r)) {
                         array_push($result, $r);
                     }
                 }
                 $output = $result;
             } else {
-                $output = $this->processCall($data);
+                $output = $this->processCall($data, $version);
             }
         } catch (JsonRpcException $e) {
             $output = $this->makeErrorResponse($e);
@@ -80,7 +88,7 @@ class JsonRpcServer
 
     }
 
-    protected function processCall($call)
+    protected function processCall($call, $version = 1)
     {
         $isNotification = is_object($call) && !property_exists($call, 'id');
 
@@ -108,7 +116,22 @@ class JsonRpcServer
                 throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
             }
 
-            $this->reflection->init($this->services[$namespace], $method);
+            krsort($this->services[$namespace], SORT_NUMERIC);
+
+            $method_exists = false;
+
+            foreach($this->services[$namespace] AS $_v => $_c) {
+                if ($version >= $_v) {
+                    if ($this->reflection->init($this->services[$namespace][$_v], $method)) {
+                        $method_exists = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!$method_exists) {
+                throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
+            }
 
             return $this->makeResultResponse(
                 $this->reflection->invokeMethod($call->params),

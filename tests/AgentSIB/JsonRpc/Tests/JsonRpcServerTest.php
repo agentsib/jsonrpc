@@ -32,12 +32,21 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             array('newns', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', false),
+            array('newsss', '\\AgentSIB\\JsonRpc\\Tests\\Services\\InvalidJsonRpcService', false), // Invalid class..
             array('second', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', true),
             array('SeCond', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', true),
             array('Wrong NS', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', true),
             array('Wrong1', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcService', true),
             array('newns', '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcServiceasdf', true),
         );
+    }
+
+    public function testInvalidServiceInvoke()
+    {
+        $this->server->addService('testtest', '\\AgentSIB\\JsonRpc\\Tests\\Services\\InvalidJsonRpcService');
+
+        $result = $this->makeSingleJsonRpcErrorRequest($this->createSingleRequest('testtest.test', null));
+        $this->assertEquals(JsonRpcException::ERROR_METHOD_NOT_FOUND, $result->error->code);
     }
 
     /**
@@ -447,6 +456,68 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    public function testVersionV2()
+    {
+        $this->server->addService(
+            JsonRpcServer::DEFAULT_NAMESPACE,
+            '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcServiceV2',
+            2
+        );
+        $this->server->addService(
+            JsonRpcServer::DEFAULT_NAMESPACE,
+            '\\AgentSIB\\JsonRpc\\Tests\\Services\\FirstJsonRpcServiceV3',
+            3
+        );
+
+        $result = $this->makeSingleJsonRpcRequest($this->createSingleRequest('noParamsMethod', null), 1);
+        $this->assertEquals('answer', $result->result);
+
+        $result = $this->makeSingleJsonRpcRequest($this->createSingleRequest('noParamsMethod', null), 2);
+        $this->assertEquals('answer_v2', $result->result);
+
+        $result = $this->makeSingleJsonRpcRequest($this->createSingleRequest('noParamsMethod', null), 3);
+        $this->assertEquals('answer_v2_v3', $result->result);
+    }
+
+    public function testWrongVersionString()
+    {
+        $this->setExpectedException('LogicException');
+
+        $this->makeSingleJsonRpcErrorRequest($this->createSingleRequest('noParamsMethod', null), 'sdf');
+    }
+
+    public function testWrongVersionFloat()
+    {
+        $this->setExpectedException('LogicException');
+
+        $this->makeSingleJsonRpcErrorRequest($this->createSingleRequest('noParamsMethod', null), 0.3);
+    }
+
+
+    public function testWrongVersionLessZero()
+    {
+        $this->setExpectedException('LogicException');
+
+        $this->makeSingleJsonRpcErrorRequest($this->createSingleRequest('noParamsMethod', null), -1);
+    }
+
+    public function testNewNamespaceForVersion()
+    {
+        $this->server->addService(
+            'third',
+            '\\AgentSIB\\JsonRpc\\Tests\\Services\\ThirdJsonRpcServiceV2',
+            2
+        );
+
+        $result = $this->makeSingleJsonRpcErrorRequest($this->createSingleRequest('third.noParamsMethod', null), 1);
+        $this->assertEquals(JsonRpcException::ERROR_METHOD_NOT_FOUND, $result->error->code);
+
+        $this->makeSingleJsonRpcRequest($this->createSingleRequest('third.noParamsMethod', null), 2);
+        $this->makeSingleJsonRpcRequest($this->createSingleRequest('third.noParamsMethod', null), 3);
+        $this->makeSingleJsonRpcRequest($this->createSingleRequest('third.noParamsMethod', null), 100);
+
+    }
+
     public function testSingleNotification()
     {
         $request = $this->createSingleNotificationRequest('testMethod', null);
@@ -580,10 +651,10 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
         return json_encode($request);
     }
 
-    protected function makeSingleJsonRpcRequest($data)
+    protected function makeSingleJsonRpcRequest($data, $version = 1)
     {
 
-        $str = $this->server->process($data);
+        $str = $this->server->process($data, $version);
 
         $result = json_decode($str);
 
@@ -600,18 +671,18 @@ class JsonRpcServerTest extends \PHPUnit_Framework_TestCase
         $this->assertObjectNotHasAttribute('error', $data);
     }
 
-    protected function makeSingleJsonRpcRequestNotification($data)
+    protected function makeSingleJsonRpcRequestNotification($data, $version = 1)
     {
 
-        $str = $this->server->process($data);
+        $str = $this->server->process($data, $version);
 
         $this->assertEmpty($str);
     }
 
-    protected function makeSingleJsonRpcErrorRequest($data)
+    protected function makeSingleJsonRpcErrorRequest($data, $version = 1)
     {
 
-        $str = $this->server->process($data);
+        $str = $this->server->process($data, $version);
 
         $result = json_decode($str);
 

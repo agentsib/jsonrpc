@@ -18,26 +18,35 @@ class BaseJsonRpcReflection implements JsonRpcReflectionInterface{
     public function init ($class, $method)
     {
         if (!class_exists($class)) {
-            throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
+            /**
+             * @codeCoverageIgnore
+             */
+            return false;
         }
 
         $this->class = new \ReflectionClass($class);
 
-        if (!$this->class->hasMethod($method)) {
-            throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
+        if (!$this->getClass()->isSubclassOf('AgentSIB\\JsonRpc\\JsonRpcServiceInterface')) {
+            return false;
         }
 
-        $this->method = $this->class->getMethod($method);
-
-        if (!$this->method->isPublic() || $this->method->isStatic() || $this->method->isAbstract()) {
-            throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
+        if (!$this->getClass()->hasMethod($method)) {
+            return false;
         }
+
+        $this->method = $this->getClass()->getMethod($method);
+
+        if (!$this->getMethod()->isPublic() || $this->getMethod()->isStatic() || $this->getMethod()->isAbstract()) {
+            return false;
+        }
+
+        return true;
     }
 
 
     public function getNumberOfRequiredParameters()
     {
-        return $this->method->getNumberOfRequiredParameters();
+        return $this->getMethod()->getNumberOfRequiredParameters();
     }
 
     public function invokeMethod($params = null)
@@ -46,15 +55,12 @@ class BaseJsonRpcReflection implements JsonRpcReflectionInterface{
         if ($preparedParams == null) {
             $preparedParams = array();
         }
-        return $this->method->invokeArgs($this->getClassInstance(), $preparedParams);
+        return $this->getMethod()->invokeArgs($this->getClassInstance(), $preparedParams);
     }
 
     public function getClassInstance() {
 
-        $class = $this->class->newInstance();
-        if (!($class instanceof JsonRpcServiceInterface)) {
-            throw new JsonRpcException(JsonRpcException::ERROR_METHOD_NOT_FOUND);
-        }
+        $class = $this->getClass()->newInstance();
 
         return $class;
     }
@@ -68,7 +74,7 @@ class BaseJsonRpcReflection implements JsonRpcReflectionInterface{
                 return $params;
             case 'object':
                 $result = array();
-                foreach ($this->method->getParameters() as $refParam) {
+                foreach ($this->getMethod()->getParameters() as $refParam) {
                     if (property_exists($params, $refParam->getName())) {
                         $result[$refParam->getName()] = $params->{$refParam->getName()};
                     } else {
@@ -87,6 +93,22 @@ class BaseJsonRpcReflection implements JsonRpcReflectionInterface{
                 return null;
 
         }
+    }
+
+    /**
+     * @return \ReflectionMethod
+     */
+    protected function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * @return \ReflectionClass
+     */
+    protected function getClass()
+    {
+        return $this->class;
     }
 
 }
