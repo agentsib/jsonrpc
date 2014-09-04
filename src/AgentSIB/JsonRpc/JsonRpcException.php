@@ -27,10 +27,9 @@ class JsonRpcException extends \Exception
 
     public function __construct ($code = 0, Exception $previous = null)
     {
-        $message = $this->errorsMessages[$code] ?
+        $message = isset($this->errorsMessages[$code]) ?
                    $this->errorsMessages[$code] :
                    $this->errorsMessages[self::ERROR_INTERNAL_ERROR];
-
         parent::__construct($message, $code, $previous);
     }
 
