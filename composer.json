@@ -1,6 +1,7 @@
 {
     "name": "agentsib/jsonrpc",
     "description": "Json-RPC server and client",
+    "license": "Apache-2.0",
     "type" : "library",
     "keywords": ["json", "rpc", "json-rpc", "api"],
     "homepage": "http://github.com/agentsib/jsonrpc",
