@@ -10,11 +10,11 @@ class CurlJsonRpcTransport implements JsonRpcTransportInterface
 {
 
     protected $curl_opts = array(
-        CURLOPT_HEADER         => false,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_POST           => true,
-        CURLOPT_TIMEOUT        => 5,
-        CURLOPT_HTTPHEADER     => array('Content-type: application/json', 'Accept: application/json')
+        CURLOPT_HEADER          => false,
+        CURLOPT_RETURNTRANSFER  => true,
+        CURLOPT_POST            => true,
+        CURLOPT_CONNECTTIMEOUT  => 20,
+        CURLOPT_HTTPHEADER      => array('Content-type: application/json', 'Accept: application/json')
     );
 
     private $url;
@@ -28,7 +28,7 @@ class CurlJsonRpcTransport implements JsonRpcTransportInterface
     public function sendRequest ($request)
     {
         $curl = curl_init();
-        curl_setopt_array($curl, array_merge($this->curl_opts, array(
+        curl_setopt_array($curl, array_replace($this->curl_opts, array(
                 CURLOPT_URL        => $this->url,
                 CURLOPT_POSTFIELDS => $request,
         )));
@@ -39,7 +39,7 @@ class CurlJsonRpcTransport implements JsonRpcTransportInterface
         $response_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
 
-        if (!$error_code) {
+        if ($error_code) {
             throw new \Exception('Transport error #' . $error_code.': ' . $error_msg);
         }
 
@@ -50,3 +50,4 @@ class CurlJsonRpcTransport implements JsonRpcTransportInterface
         return $response;
     }
 }
+
