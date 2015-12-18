@@ -14,6 +14,7 @@ class CurlJsonRpcTransport implements JsonRpcTransportInterface
         CURLOPT_RETURNTRANSFER  => true,
         CURLOPT_POST            => true,
         CURLOPT_CONNECTTIMEOUT  => 20,
+        CURLOPT_FOLLOWLOCATION  => true,
         CURLOPT_HTTPHEADER      => array('Content-type: application/json', 'Accept: application/json')
     );
 
